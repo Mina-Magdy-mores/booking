@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Category;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CreateCategoryRequest;
+use App\Http\Requests\UpdataCategoryRequest;
 use App\Http\Resources\CategoryResource;
 use App\Http\Services\CategoryServices;
 use App\Models\Category;
@@ -16,9 +17,9 @@ class CategoryController extends Controller
     {
         $this->categoryServices = new CategoryServices();
     }
-    public function index()
+    public function index(Request $request)
     {
-        $categories = $this->categoryServices->getCategories();
+        $categories = $this->categoryServices->getCategories($request->per_page);
         if (!$categories) {
             return response()->json([
                 'status' => false,
@@ -27,7 +28,7 @@ class CategoryController extends Controller
         }
         return response()->json([
             'status' => true,
-            'categories' => CategoryResource::collection($categories)
+            'categories' => CategoryResource::collection($categories)->response()->getData(true)
         ], 200);
     }
     public function show($id)
@@ -44,7 +45,7 @@ class CategoryController extends Controller
             'category' => new CategoryResource($category)
         ], 200);
     }
-    public function create(CreateCategoryRequest $request)
+    public function store(CreateCategoryRequest $request)
     {
         $validatedData = $request->validated();
         $category = $this->categoryServices->create($validatedData);
@@ -59,7 +60,7 @@ class CategoryController extends Controller
             'category' => new CategoryResource($category)
         ], 201);
     }
-    public function update(CreateCategoryRequest $request, $id)
+    public function update(UpdataCategoryRequest $request, $id)
     {
         $category = $this->categoryServices->getCategory($id);
         if (!$category) {

@@ -5,7 +5,7 @@ namespace App\Http\Requests;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class CreateCategoryRequest extends FormRequest
+class UpdataCategoryRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,7 +23,7 @@ class CreateCategoryRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => 'required|string|min:3',
+            'title' => 'sometimes|required|string|min:3',
             'description' => 'nullable|string|min:3',
             'is_active' => 'boolean',
         ];
@@ -31,6 +31,7 @@ class CreateCategoryRequest extends FormRequest
     public function messages(): array
     {
         return [
+            'title.sometimes' => 'The title field is sometimes required.',
             'title.required' => 'The title field is required.',
             'title.string' => 'The title must be a string.',
             'title.min' => 'The title must be at least 3 characters.',

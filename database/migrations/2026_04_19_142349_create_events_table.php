@@ -16,8 +16,12 @@ return new class extends Migration
             $table->string('title');
             $table->text('description')->nullable();
             $table->string('location');
-            $table->date('start_date');
-            $table->integer('available_seats');
+            $table->dateTime('start_date');
+            $table->dateTime('ended_date');
+            $table->decimal('price', 8, 2)->default(0.00);
+            $table->integer('available_seats')->default(0);
+            $table->string('image')->nullable();
+            $table->boolean('is_active')->default(true);
             $table->foreignId('category_id')->constrained()->cascadeOnDelete();
             $table->timestamps();
         });

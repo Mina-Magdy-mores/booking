@@ -19,8 +19,11 @@ class EventResource extends JsonResource
             'title' => $this->title,
             'description' => $this->description,
             'location' => $this->location,
-            'start_date' => $this->start_date,
+            'start_date' => $this->start_date->diffForHumans(),
+            'ended_date' => $this->ended_date->diffForHumans(),
+            'price' => $this->price,
             'available_seats' => $this->available_seats,
+            'is_active' => $this->is_active,
             'category' => new CategoryResource($this->whenLoaded('category')),
             'image' => $this->getMedia('main-image')->map(function ($item) {
                 return [
@@ -28,6 +31,8 @@ class EventResource extends JsonResource
                     'url' => $item->getUrl(),
                 ];
             }),
+            'created_at' => $this->created_at->diffForHumans(),
+            'updated_at' => $this->updated_at->diffForHumans()
         ];
     }
 }

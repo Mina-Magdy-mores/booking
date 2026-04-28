@@ -7,9 +7,9 @@ use App\Models\Category;
 
 class CategoryServices
 {
-    public function getCategories()
+    public function getCategories($per_page)
     {
-        return Category::all();
+        return Category::paginate($per_page ?? 3);
     }
     public function getCategory($id)
     {
