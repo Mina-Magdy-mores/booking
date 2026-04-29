@@ -5,7 +5,7 @@ namespace App\Http\Requests;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateBookingRequest extends FormRequest
+class BookingRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,7 +23,11 @@ class UpdateBookingRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'status' => 'required|string|in:pending,confirmed,cancelled',
+          'user_id' => 'required|string|exists:users,id',
+          'event_id' => 'required|string|exists:events,id',
+          'quantity' => 'required|integer|min:1',
+          'total_price' => 'required|numeric|min:0',
+          'status' => 'required|string|in:pending,confirmed,cancelled',
         ];
     }
 }

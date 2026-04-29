@@ -42,7 +42,11 @@ Route::controller(EventController::class)->group(function () {
 Route::controller(BookingController::class)->group(function () {
     Route::get('/booking', 'index');
     Route::get('/booking/{booking}', 'show');
-    Route::post('/booking', 'store');
-    Route::put('/booking/{booking}', 'update');
-    Route::delete('/booking/{booking}', 'destroy');
+    Route::middleware(['auth:sanctum'])->group(function () {
+        Route::post('/booking', 'store');
+        Route::middleware(['checkRole:admin'])->group(function () {
+            Route::put('/booking/{booking}', 'update');
+            Route::delete('/booking/{booking}', 'destroy');
+        });
+    });
 });
