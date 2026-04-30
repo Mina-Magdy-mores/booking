@@ -51,3 +51,4 @@ Route::controller(BookingController::class)->group(function () {
         });
     });
 });
+
