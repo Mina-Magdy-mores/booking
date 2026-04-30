@@ -7,15 +7,18 @@ use App\Http\Requests\CreateEventRequest;
 use App\Http\Requests\UpdateEventRequest;
 use App\Http\Resources\EventResource;
 use App\Http\Services\EventServices;
+use App\Http\Services\MediaService;
 use App\Models\Event;
 use Illuminate\Http\Request;
 
 class EventController extends Controller
 {
     public EventServices $eventServices;
-    public function __construct()
+    protected MediaService $mediaService;
+    public function __construct(MediaService $mediaService, EventServices $eventServices)
     {
-        $this->eventServices = new EventServices();
+        $this->eventServices = $eventServices;
+        $this->mediaService = $mediaService;
     }
     /**
      * Display a listing of the resource.
@@ -23,6 +26,9 @@ class EventController extends Controller
     public function index(Request $request)
     {
         $events = $this->eventServices->getEvents($request->per_page);
+        $events->each(function ($event) {
+            $event->image = $this->mediaService->getMedia($event, 'event-image');
+        });
         if (!$events) {
             return response()->json([
                 'status' => false,
@@ -48,7 +54,11 @@ class EventController extends Controller
                 'message' => 'Event not created'
             ], 500);
         }
-        $event->addMedia($request->file('image'))->toMediaCollection('main-image');
+        $images = $request->file('image');
+        foreach ($images as $image) {
+            $this->mediaService->createMedia($event, $image, 'event-image');
+        }
+        $event->image = $this->mediaService->getMedia($event, 'event-image');
         return response()->json([
             'status' => true,
             'event' => new EventResource($event)
@@ -61,6 +71,7 @@ class EventController extends Controller
     public function show($id)
     {
         $event = $this->eventServices->getEvent($id);
+        $event->image = $this->mediaService->getMedia($event, 'event-image');
         if (!$event) {
             return response()->json([
                 'status' => false,
@@ -76,7 +87,7 @@ class EventController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateEventRequest $request, $id)
+    public function update(UpdateEventRequest $request, string $id)
     {
         $validatedData = $request->validated();
         $event = $this->eventServices->getEvent($id);
@@ -86,7 +97,7 @@ class EventController extends Controller
                 'message' => 'Event not updated'
             ], 500);
         }
-        $bool = $event->update($validatedData);
+        $bool = $this->eventServices->update($event, $validatedData);
         if (!$bool) {
             return response()->json([
                 'status' => false,
@@ -94,14 +105,16 @@ class EventController extends Controller
             ], 500);
         }
         if ($request->hasFile('image')) {
-            if ($event->hasMedia('main-image')) {
-                $event->clearMediaCollection('main-image');
+            $this->mediaService->deleteMedia($event, 'event-image');
+            $images = $request->file('image');
+            foreach ($images as $image) {
+                $this->mediaService->createMedia($event, $image, 'event-image');
             }
-            $event->addMedia($request->file('image'))->toMediaCollection('main-image');
+            $event->refresh()->image = $this->mediaService->getMedia($event, 'event-image');
         }
         return response()->json([
             'status' => true,
-            'event' => new EventResource($event->refresh())
+            'event' => new EventResource($event),
         ], 201);
     }
 
@@ -117,16 +130,14 @@ class EventController extends Controller
                 'message' => 'Event not found'
             ], 404);
         }
-       $bool =  $event->delete();
+        $bool = $this->eventServices->delete($event);
         if (!$bool) {
             return response()->json([
                 'status' => false,
                 'message' => 'Event not deleted'
             ], 500);
         }
-        if ($event->hasMedia('main-image')) {
-            $event->clearMediaCollection('main-image');
-        }
+        $this->mediaService->deleteMedia($event, 'event-image');
         return response()->json([
             'status' => true,
             'message' => 'Event deleted successfully'

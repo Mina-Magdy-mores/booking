@@ -31,7 +31,8 @@ class CreateEventRequest extends FormRequest
             'price' => 'required|decimal:2|min:0',
             'available_seats' => 'required|integer|min:0',
             'is_active' => 'boolean',
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:20048',
+            'image' => 'required|array',
+            'image.*' => 'required|image|mimes:jpeg,png,jpg,gif|max:20048',
             'category_id' => 'required|integer|exists:categories,id',
         ];
     }

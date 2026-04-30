@@ -31,7 +31,8 @@ class UpdateEventRequest extends FormRequest
             'price' => 'sometimes|required|decimal:2|min:0',
             'available_seats' => 'sometimes|required|integer|min:0',
             'is_active' => 'boolean',
-            'image' => 'sometimes|required|image|mimes:jpeg,png,jpg,gif|max:20048',
+            'image' => 'sometimes|array',
+            'image.*' => 'sometimes|image|mimes:jpeg,png,jpg,gif|max:20048',
             'category_id' => 'sometimes|required|integer|exists:categories,id',
         ];
     }

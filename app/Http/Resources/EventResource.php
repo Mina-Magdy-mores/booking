@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Http\Services\MediaService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -25,12 +26,7 @@ class EventResource extends JsonResource
             'available_seats' => $this->available_seats,
             'is_active' => $this->is_active,
             'category' => new CategoryResource($this->whenLoaded('category')),
-            'image' => $this->getMedia('main-image')->map(function ($item) {
-                return [
-                    'id' => $item->id,
-                    'url' => $item->getUrl(),
-                ];
-            }),
+            'image' =>  $this->image,
             'created_at' => $this->created_at->diffForHumans(),
             'updated_at' => $this->updated_at->diffForHumans()
         ];

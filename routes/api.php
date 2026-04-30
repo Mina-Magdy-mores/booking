@@ -30,13 +30,14 @@ Route::controller(CategoryController::class)->group(function () {
     });
 });
 
-
 Route::controller(EventController::class)->group(function () {
     Route::get('/event', 'index');
     Route::get('/event/{event}', 'show');
-    Route::post('/event', 'store');
-    Route::put('/event/{event}', 'update');
-    Route::delete('/event/{event}', 'destroy');
+    Route::middleware(['auth:sanctum', 'checkRole:admin'])->group(function () {
+        Route::post('/event', 'store');
+        Route::put('/event/{event}', 'update');
+        Route::delete('/event/{event}', 'destroy');
+    });
 });
 
 Route::controller(BookingController::class)->group(function () {

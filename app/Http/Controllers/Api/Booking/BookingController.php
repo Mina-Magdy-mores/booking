@@ -7,15 +7,18 @@ use App\Http\Requests\BookingRequest;
 use App\Http\Requests\UpdateBookingRequest;
 use App\Http\Resources\BookingResource;
 use App\Http\Services\BookingServices;
-use App\Models\Booking;
+use App\Http\Services\MediaService;
 use Illuminate\Http\Request;
 
 class BookingController extends Controller
 {
     public BookingServices $bookingServices;
-    public function __construct()
+
+    protected MediaService $mediaService;
+    public function __construct(MediaService $mediaService, BookingServices $bookingServices)
     {
-        $this->bookingServices = new BookingServices();
+        $this->bookingServices = $bookingServices;
+        $this->mediaService = $mediaService;
     }
     /**
      * Display a listing of the resource.
@@ -48,9 +51,10 @@ class BookingController extends Controller
                 'message' => 'Failed to create booking'
             ], 500);
         }
+        $booking->refresh()->load(['event', 'user'])->event->image = $this->mediaService->getMedia($booking->event, 'event-image');
         return response()->json([
             'status' => true,
-            'booking' => new BookingResource($booking->refresh())
+            'booking' => new BookingResource($booking)
         ], 201);
     }
 
@@ -100,7 +104,7 @@ class BookingController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy($id)
+    public function destroy(string $id)
     {
         $booking = $this->bookingServices->getBooking($id);
         if (!$booking) {
