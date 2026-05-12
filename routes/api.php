@@ -41,14 +41,15 @@ Route::controller(EventController::class)->group(function () {
 });
 
 Route::controller(BookingController::class)->group(function () {
-    Route::get('/booking', 'index');
-    Route::get('/booking/{booking}', 'show');
     Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('/booking', 'store');
+        Route::get('/my-bookings', 'myBookings');
         Route::middleware(['checkRole:admin'])->group(function () {
+            Route::get('/booking', 'index');
+            Route::get('/pending-bookings', 'pendingBookings');
+            Route::get('/booking/{booking}', 'show');
             Route::put('/booking/{booking}', 'update');
             Route::delete('/booking/{booking}', 'destroy');
         });
     });
 });
-

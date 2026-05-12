@@ -18,6 +18,14 @@ class BookingServices
     {
         return Booking::with(['event', 'user'])->find($id);
     }
+    public function getMyBookings($per_page, $user_id)
+    {
+        return Booking::with(['event', 'user'])->where('user_id', $user_id)->paginate($per_page ?? 5);
+    }
+    public function getPendingBookings($per_page)
+    {
+        return Booking::with(['event', 'user'])->pending()->paginate($per_page ?? 5);
+    }
     public function create($validatedData)
     {
         DB::transaction(function () use ($validatedData) {

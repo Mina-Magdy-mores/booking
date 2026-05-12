@@ -38,6 +38,43 @@ class BookingController extends Controller
         ], 200);
     }
     /**
+     * Display a listing of the resource.
+     */
+    public function myBookings(Request $request)
+    {
+        if (!$request->user()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'User not found'
+            ], 404);
+        }
+        $bookings = $this->bookingServices->getMyBookings($request->per_page, $request->user()->id);
+        if (!$bookings) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Bookings not found'
+            ], 404);
+        }
+        return response()->json([
+            'status' => true,
+            'bookings' => BookingResource::collection($bookings)->response()->getData(true)
+        ], 200);
+    }
+    public function pendingBookings(Request $request)
+    {
+        $bookings = $this->bookingServices->getPendingBookings($request->per_page);
+        if (!$bookings) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Bookings not found'
+            ], 404);
+        }
+        return response()->json([
+            'status' => true,
+            'bookings' => BookingResource::collection($bookings)->response()->getData(true)
+        ], 200);
+    }
+    /**
      * Store a newly created resource in storage.
      */
     public function store(BookingRequest $request)
