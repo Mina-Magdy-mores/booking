@@ -1,58 +1,71 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 📅 Booking & Event Management API Platform
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+[![Laravel Framework](https://img.shields.io/badge/Laravel-v11/13-FF2D20?style=for-the-badge&logo=laravel)](https://laravel.com/)
+[![PHP Runtime](https://img.shields.io/badge/PHP-v8.2/8.4-777BB4?style=for-the-badge&logo=php)](https://www.php.net/)
+[![Database Architecture](https://img.shields.io/badge/Database-MySQL-4479A1?style=for-the-badge&logo=mysql)](https://www.mysql.com/)
+[![Authentication Engine](https://img.shields.io/badge/Auth-Sanctum-red?style=for-the-badge)](https://laravel.com/docs/sanctum)
 
-## About Laravel
+A production-ready, high-performance RESTful API designed to manage synchronized event scheduling and transactional bookings. Built with **Laravel** and **PHP**, this platform focuses heavily on strict data integrity, robust backend architecture patterns, race-condition prevention, and clean decoupling of business logic from the HTTP routing layer.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 🚀 Key Architectural Highlights
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### 1. Concurrency Safety & Race-Condition Prevention
+* **Pessimistic Database Locking:** Integrates `lockForUpdate()` during the booking validation lifecycle to freeze room/event capacity, completely eliminating double-booking flaws or ticket overselling in high-concurrency environments.
+* **Atomic Financial Integrity:** Wraps database transactions dynamically using standard ACID-compliant `DB::transaction()` wrappers, rolling back entirely on any structural payload failure.
+* **Server-Side Calculations:** Computes transactional pricing variables natively at the service level to eliminate any front-end price injection vulnerabilities.
 
-## Learning Laravel
+### 2. Service-Oriented Domain Layer (`app/Services/`)
+* **Decoupled Architectural Isolation:** Features a dedicated, injection-ready domain service design (`BookingServices`, `EventServices`, `CategoryServices`), isolating complex entity state mutations entirely away from REST controllers.
+* **Reusable Polymorphic Asset Handlers:** Implements a wrapper `MediaService` leveraging the Spatie MediaLibrary engine to process multi-tier file uploads natively across polymorphic models without database or orphaning leaks.
+* **Domain State Machine Tracking:** Guides booking records dynamically through a tri-state machine framework (*pending*, *confirmed*, *cancelled*) utilizing centralized database query scopes.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### 3. Enterprise Access Control & Validation Guards
+* **Granular RBAC Middlwares:** Deploys explicit custom routing middleware structures (`checkRole:admin`) built on top of Laravel Sanctum token validation layers to implement secure API endpoint access limits.
+* **Centralized FormRequest Validation:** Outsources input validation tasks into type-safe, dedicated request layers (`StoreBookingRequest`), preventing invalid execution logic execution while serving standard `422 Unprocessable Entity` JSON schemas.
+* **Consistent API Serialization Contracts:** Processes database model records inside Eloquent API Resources to guarantee strict JSON type definitions and fully filter internal operational variables (e.g., hash keys, internal states).
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+---
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+## 📁 Core Repository Directory Blueprint
 
-## Agentic Development
+```text
+app/
+├── Http/Controllers/         # Resource controllers injecting domain services
+├── Http/Middleware/          # Custom RBAC guards (CheckRole middleware)
+├── Http/Requests/            # Form requests handling centralized HTTP validation
+├── Http/Resources/           # Eloquent API resources transforming JSON contracts
+├── Models/                   # Domain models leveraging modern PHP 8 attributes
+└── Services/                 # Domain Service layer isolates heavy business logic
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
-
-```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+## ⚙️ Installation & Setup Instructions
 
-## Contributing
+Follow these layout instructions to spin up the RESTful API platform environment locally:
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+1. **Clone the repository:**
+`git clone [https://github.com/Mina-Magdy-mores/booking.git](https://github.com/Mina-Magdy-mores/booking.git)`
+`cd booking`
 
-## Code of Conduct
+2. **Install Composer dependencies:**
+`composer install`
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+3. **Configure Environment Variables:**
+`cp .env.example .env`
+`php artisan key:generate`
+*(Configure your local MySQL DB variables inside the generated .env file)*
 
-## Security Vulnerabilities
+4. **Execute Core Database Migrations & Seeds:**
+`php artisan migrate --seed`
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+5. **Boot up the localized development API server:**
+`php artisan serve`
 
-## License
+---
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## 👤 Author
+* **Mina Magdy Mores** – Full-Stack Engineer / Back-End Developer
+* **LinkedIn:** [https://www.linkedin.com/in/mina-magdy-mores](https://www.linkedin.com/in/mina-magdy-mores)
+* **GitHub:** @Mina-Magdy-mores
