@@ -41,6 +41,13 @@ app/
 
 ```
 
+## 🛠️ Tech Stack & Core Dependencies
+
+* **Framework Engine:** Laravel Framework & PHP
+* **API Token Security Engine:** Laravel Sanctum Auth
+* **Polymorphic Media Asset Engine:** Spatie Laravel MediaLibrary v11
+* **Database Management Engine:** MySQL Relations
+
 ## ⚙️ Installation & Setup Instructions
 
 Follow these layout instructions to spin up the RESTful API platform environment locally:
